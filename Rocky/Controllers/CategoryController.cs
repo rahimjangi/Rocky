@@ -19,14 +19,27 @@ public class CategoryController : Controller
         return View(objList);
     }
     [HttpGet]
-    public IActionResult Create()
+    public IActionResult Upsert(int? id)
     {
-        return View();
+        Category Category = new Category();
+        if (id == null)
+        {
+            return View(Category);
+        }
+        else
+        {
+            Category? obj = _db.Categories.Find(id);
+            if (obj == null)
+            {
+                return NotFound();
+            }
+            return View(obj);
+        }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(Category category)
+    public IActionResult Upsert(Category category)
     {
         if (!ModelState.IsValid)
         {
@@ -34,35 +47,44 @@ public class CategoryController : Controller
         }
         else
         {
-            _db.Categories.Add(category);
-            _db.SaveChanges();
-            return RedirectToAction("Index");
+            if (category.Id == 0)
+            {
+                _db.Categories.Add(category);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                _db.Categories.Update(category);
+                _db.SaveChanges();
+                return RedirectToAction("Index");
+            }
         }
     }
-    [HttpGet]
-    public IActionResult Edit(int? id)
-    {
-        if (id == 0 || id == null) return NotFound();
-        var category = _db.Categories.Find(id);
-        if (category == null) return NotFound();
-        return View(category);
-    }
+    //[HttpGet]
+    //public IActionResult Edit(int? id)
+    //{
+    //    if (id == 0 || id == null) return NotFound();
+    //    var category = _db.Categories.Find(id);
+    //    if (category == null) return NotFound();
+    //    return View(category);
+    //}
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Edit(Category category)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(category);
-        }
-        else
-        {
-            _db.Categories.Update(category);
-            _db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-    }
+    //[HttpPost]
+    //[ValidateAntiForgeryToken]
+    //public IActionResult Edit(Category category)
+    //{
+    //    if (!ModelState.IsValid)
+    //    {
+    //        return View(category);
+    //    }
+    //    else
+    //    {
+    //        _db.Categories.Update(category);
+    //        _db.SaveChanges();
+    //        return RedirectToAction("Index");
+    //    }
+    //}
 
 
     [HttpGet]
