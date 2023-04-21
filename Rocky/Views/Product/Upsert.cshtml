@@ -1,14 +1,15 @@
-﻿@model Product
+﻿@using Rocky.ViewModels;
+@model ProductVM
 
 @{
     var title = "Create Product";
 }
 
 <form method="post" asp-action="Upsert" enctype="multipart/form-data">
-    @if (Model.Id != 0)
+    @if (Model.Product!=null && Model.Product.Id != 0)
     {
         title = "Edit Product";
-        <input asp-for="Id" hidden/>
+        <input asp-for="@Model.Product.Id" hidden />
     }
 
     <div class="border p-3">
@@ -19,66 +20,66 @@
             <div class="col-8">
                 <div class="form-group row">
                     <div class="col-4">
-                        <label asp-for="Name"></label>
+                        <label asp-for="@Model.Product!.Name"></label>
                     </div>
                     <div class="col-8">
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
+                        <input asp-for="@Model.Product!.Name" class="form-control" />
+                        <span asp-validation-for="@Model.Product!.Name" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="form-group row pt-2">
                     <div class="col-4">
-                        <label asp-for="Description"></label>
+                        <label asp-for="@Model.Product!.Description"></label>
                     </div>
                     <div class="col-8">
-                        <textarea asp-for="Description" class="form-control" ></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <textarea asp-for="@Model.Product!.Description" class="form-control summernote" ></textarea>
+                        <span asp-validation-for="@Model.Product!.Description" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="form-group row pt-2">
                     <div class="col-4">
-                        <label asp-for="Price"></label>
+                        <label asp-for="@Model.Product!.Price"></label>
                     </div>
                     <div class="col-8">
-                        <input asp-for="Price" class="form-control"/>
-                        <span asp-validation-for="Price" class="text-danger"></span>
+                        <input asp-for="@Model.Product!.Price" class="form-control" />
+                        <span asp-validation-for="@Model.Product!.Price" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="form-group row pt-2">
                     <div class="col-4">
-                        <label asp-for="Image"></label>
+                        <label asp-for="@Model.Product!.Image"></label>
                     </div>
                     <div class="col-8">
-                        <input type="file" name="files" id="uploadedBox" multiple class="form-control"/>
+                        <input type="file" name="files" id="uploadBox" multiple class="form-control"/>
                     </div>
                 </div>
 
                 @*Category Id*@
                 <div class="form-group row pt-2">
                     <div class="col-4">
-                        <label asp-for="CategoryId"></label>
+                        <label asp-for="@Model.Product!.CategoryId"></label>
                     </div>
                     <div class="col-8">
-                        <select asp-for="CategoryId" asp-items="ViewBag.CategoryDropDown" class="form-control">
-                            <option>Select Category</option>
+                        <select asp-for="@Model.Product!.CategoryId" asp-items="@Model.CategorySelectList" class="form-control">
+                            <option disabled selected>--Select Category--</option>
                         </select>
-                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        <span asp-validation-for="@Model.Product!.CategoryId" class="text-danger"></span>
                     </div>
                 </div>
 
                 @*ApplicationType Id*@
                 <div class="form-group row pt-2">
                     <div class="col-4">
-                        <label asp-for="ApplicationTypeId"></label>
+                        <label asp-for="@Model.Product!.ApplicationTypeId"></label>
                     </div>
                     <div class="col-8">
-                        <select asp-for="ApplicationTypeId" asp-items="ViewBag.ApplicationTypeDropDown" class="form-control">
-                            <option>Select Application Type</option>
+                        <select asp-for="@Model.Product!.ApplicationTypeId" asp-items="@Model.ApplicationTypeSelectList" class="form-control">
+                            <option disabled selected>--Select Application Type--</option>
                         </select>
-                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        <span asp-validation-for="@Model.Product!.CategoryId" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -86,7 +87,7 @@
                     <div class="col-8 offset-4 row">
 
                         <div class="col">
-                            @if (Model.Id!=0)
+                            @if (Model.Product!=null && Model.Product.Id != 0)
                             {
                                 //Update
                                 <input type="submit" class="btn btn-info w-100" value="Update" />
@@ -115,5 +116,25 @@
     @{
     <partial name="_ValidationScriptsPartial"/>
     }
+    <script>
+            $(document).ready(function () {
+            $('.summernote').summernote({
+                height:250
+            });
+        });
+
+        function validateInput(){
+            if (document.getElementById("uploadBox").value == "") {
+                Swal.fire(
+                    'Error!',
+                    'Please upload an image!',
+                    'error'
+                )
+                return false; 
+            }
+            return true;
+        }
+    </script>
+
 
 }                            

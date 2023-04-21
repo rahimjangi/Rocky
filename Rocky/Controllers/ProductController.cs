@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Rocky.Data;
 using Rocky.Models;
+using Rocky.ViewModels;
 
 namespace Rocky.Controllers;
 
 public class ProductController : Controller
 {
     private readonly ApplicationDbContext _db;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public ProductController(ApplicationDbContext db)
+    public ProductController(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment)
     {
         _db = db;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     [HttpGet]
@@ -25,36 +28,37 @@ public class ProductController : Controller
     [HttpGet]
     public IActionResult Upsert(int? id)
     {
+        ProductVM productVM = new ProductVM();
         IEnumerable<SelectListItem> categoryDropDown =
             _db.Categories.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToList();
 
         IEnumerable<SelectListItem> applicationTypeDropDown =
     _db.ApplicationTypes.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }).ToList();
 
+        productVM.CategorySelectList = categoryDropDown;
+        productVM.ApplicationTypeSelectList = applicationTypeDropDown;
 
-        ViewBag.CategoryDropDown = categoryDropDown;
-        ViewBag.ApplicationTypeDropDown = applicationTypeDropDown;
-        Product product = new Product();
+
         if (id == null)
         {
             //Create
-            return View(product);
+            return View(productVM);
         }
         else
         {
             //Update
-            var productFromDb = _db.Products.Find(id);
-            if (productFromDb == null)
+            productVM.Product = _db.Products.Find(id);
+            if (productVM.Product == null)
             {
                 return NotFound();
             }
-            return View(productFromDb);
+            return View(productVM);
         }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Upsert(Product obj)
+    public IActionResult Upsert(ProductVM obj)
     {
         if (!ModelState.IsValid)
         {
@@ -62,7 +66,7 @@ public class ProductController : Controller
         }
         else
         {
-            _db.Products.Update(obj);
+            _db.Products.Update(obj.Product!);
             _db.SaveChanges();
             return RedirectToAction("Index");
         }
